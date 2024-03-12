@@ -1,0 +1,14 @@
+cfgv==3.4.0
+distlib==0.3.8
+filelock==3.13.1
+identify==2.5.35
+nodeenv==1.8.0
+platformdirs==4.2.0
+pre-commit==3.6.2
+PySide6==6.6.2
+PySide6_Addons==6.6.2
+PySide6_Essentials==6.6.2
+PyYAML==6.0.1
+setuptools==69.1.1
+shiboken6==6.6.2
+virtualenv==20.25.1
