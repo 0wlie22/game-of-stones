@@ -7,3 +7,7 @@ FONT = "Georgia"
 FONT_SIZE_TITLE = 70
 SUBFONT_SIZE = 20
 TEXT_SIZE = 15
+
+# Algorithms
+ALGORITHM_MINIMAX = "Minimax"
+ALGORITHM_ALPHA_BETA = "Alpha-Beta"

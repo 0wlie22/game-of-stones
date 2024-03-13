@@ -1,5 +1,3 @@
-import sys
-
 from PySide6 import QtCore
 from PySide6.QtCore import Slot
 from PySide6.QtGui import QFont
@@ -13,6 +11,8 @@ from PySide6.QtWidgets import (
 )
 
 from settings import (
+    ALGORITHM_ALPHA_BETA,
+    ALGORITHM_MINIMAX,
     FONT,
     FONT_SIZE_TITLE,
     SETTINGS_SCREEN_SIZE,
@@ -80,7 +80,7 @@ class Screen(QWidget):
         self.algorithm_label = QLabel("Computer Algorithm:")
         self.algorithm_label.setFont(QFont(FONT, SUBFONT_SIZE))
         self.algorithm_box = QComboBox(self)
-        self.algorithm_box.addItems(["Minimax", "Alpha-Beta"])
+        self.algorithm_box.addItems([ALGORITHM_MINIMAX, ALGORITHM_ALPHA_BETA])
         self.algorithm_box.setFont(QFont(FONT, TEXT_SIZE))
 
         self.start_game_button = QPushButton("Start Game", self)
@@ -100,7 +100,13 @@ class Screen(QWidget):
     @Slot()
     def start_game(self):
         print("Game started")
-        sys.exit()
+        # TODO: Implement minimax and alpha-beta algorithms
+        if self.algorithm_box.currentText() == ALGORITHM_MINIMAX:
+            raise NotImplementedError("Minimax algorithm not implemented")
+        elif self.algorithm_box.currentText() == ALGORITHM_ALPHA_BETA:
+            raise NotImplementedError("Alpha-Beta algorithm not implemented")
+        else:
+            raise ValueError("Invalid algorithm")
 
     def clear(self):
         for i in reversed(range(self.layout.count())):
