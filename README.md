@@ -25,13 +25,13 @@ python main.py
 
 ## Spēles apraksts
 
-Pirms spēles sākuma lietājs izvēlās:
+Pirms spēles sākuma lietotājs izvēlas:
 
-- sākuma akmentiņu skait2024.1.12u
+- sākuma akmentiņu skaitu (no 50 līdz 70)
 - kurš pirmais uzsāks spēli - lietotājs vai dators
 - kuru algoritmu izmantos dators
 
-Uz galda atrodas tik daudz akmentiņu, cik izvēlējās cilvēks-spēlētājs (no 50 līdz 70).
+Uz galda atrodas tik daudz akmentiņu, cik izvēlās cilvēks-spēlētājs (no 50 līdz 70).
 Katram spēlētājam spēles sākumā ir 0 akmentiņu un 0 punktu.
 Spēlētāji izpilda gājienus pēc kārtas. Spēlētājs savā gājienā drīkst paņemt sev 2 vai 3 akmentiņus.
 Ja pēc akmentiņu paņemšanas uz galda ir palicis pāra akmentiņu
