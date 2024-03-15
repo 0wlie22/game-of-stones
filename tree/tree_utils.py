@@ -167,10 +167,10 @@ def generateTree(startingGameState, height=-1): # Generate tree
         tree_level = game_tree[i]
         for gameState in tree_level:
             additional_level += nextGameStates(gameState)
-        # Duplikātu dzēšana
-        additional_level = list(set(additional_level))
-        # Ja viss padarīts, tad var neko tālāk nedarīt
+        # A failsafe
         if (len(additional_level) == 0):
             break
+        # Duplikātu dzēšana
+        additional_level = list(set(additional_level))
         game_tree.append(additional_level)
     return game_tree
