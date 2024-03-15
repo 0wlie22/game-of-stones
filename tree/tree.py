@@ -1,4 +1,4 @@
-from tree_utils import (
+from .tree_utils import (
     nextGameStates,
     previousStates,
     generateTree
