@@ -2,165 +2,157 @@ def generateGameState(stones, player=1, player1_points=0, player2_points=0):
     # I will assume that I get no issues with this (I will)
     return player*10**8+player1_points*10**5+stones*10**3+player2_points
 
+def getPlayer1Points(gameState): # Pirmā spēlētāja punktu skaits
+    return (gameState//10**5)%1000
+
+def getPlayer2Points(gameState): # Otrā spēlētāja punktu skaits
+    return gameState%1000
+
+def getStones(gameState): # Atlikušo akmentiņu skaits
+    return (gameState//10**3)%100
+
+def getPlayer(gameState): # Spēlētāja kārtas Nr.
+    return gameState//10**8
+
+# === Taking ===
+
+def take2stones(gameState): # Logic for taking two stones
+    stone_count = getStones(gameState)
+    if stone_count < 2: # Check if there are enough stones to take
+        return 
+    player = getPlayer(gameState)
+    if player == 1: # If it's player 1's turn
+        # Point arithmetic
+        player1_points = getPlayer1Points(gameState)+2
+        stone_count -= 2
+        player2_points = getPlayer2Points(gameState)
+        # Rule about additional points depending on remaining stone count
+        if stone_count % 2 == 0:
+            player2_points += 2
+        else:
+            player1_points +=2
+    else: # 2nd player's turn
+        # Point arithmetic
+        player1_points = getPlayer1Points(gameState)
+        stone_count -= 2
+        player2_points = getPlayer2Points(gameState)+2
+        # Rule about additional points depending on remaining stone count
+        if stone_count % 2 == 0:
+            player1_points += 2
+        else:
+            player2_points += 2
+    next_player = (player%2)+1
+    return generateGameState(stone_count, next_player, player1_points, player2_points)
+
+def take3stones(gameState): # Logic for taking two stones
+    stone_count = getStones(gameState)
+    if stone_count < 3: # Check if there are enough stones to take
+        return
+    player = getPlayer(gameState)
+    if player == 1: # If it's player 1's turn
+        # Point arithmetic
+        player1_points = getPlayer1Points(gameState)+3
+        stone_count -= 3
+        player2_points = getPlayer2Points(gameState)
+        # Rule about additional points depending on remaining stone count
+        if stone_count % 2 == 0:
+            player2_points += 2
+        else:
+            player1_points += 2
+    else: # 2nd player's turn
+        # Point arithmetic
+        player1_points = getPlayer1Points(gameState)
+        stone_count -= 3
+        player2_points = getPlayer2Points(gameState)+3
+        # Rule about additional points depending on remaining stone count
+        if stone_count % 2 == 0:
+            player1_points += 2
+        else:
+            player2_points += 2
+    next_player = (player%2)+1
+    return generateGameState(stone_count, next_player, player1_points, player2_points)
+
 def nextGameStates(gameState):
-    # Data innit
-    result_arr = []                             # Rezultātu masīvs
-    player1_points = (gameState//10**5)%1000    # Pirmā spēlētāja punktu skaits
-    points_toGrab = (gameState//10**3)%100      # Atlikušo akmentiņu skaits
-    player2_points = gameState%1000             # Otrā spēlētāja punktu skaits
-    player = gameState//10**8                   # Spēlētāja kārtas Nr.
-
-    # Ja ir pirmā spēlētāja kārta
-    if player == 1:
-        # Gadījums, ja paņem 2
-        # Pārbaude vai var paņemt 2
-        if points_toGrab >= 2:
-            # Punktu manipulācijas
-            player1_points_t2 = player1_points+2
-            points_toGrab_t2 = points_toGrab-2
-            player2_points_t2 = player2_points
-            # Punkti par pāra/nepāra skaita atlikumu
-            if points_toGrab_t2 % 2 == 0:
-                player2_points_t2 = player2_points_t2+2
-            else:
-                player1_points_t2 = player1_points+2
-            # Rezultātu pierakstīšana        
-            result_arr.append(generateGameState(points_toGrab_t2,2,player1_points_t2,player2_points_t2))
-
-        # Gadījums ja paņem 3
-        # Pārbaude vai var paņemt 3
-        if points_toGrab >= 3:
-            # Punktu manipulācijas
-            player1_points_t3 = player1_points+3
-            points_toGrab_t3 = points_toGrab-3
-            player2_points_t3 = player2_points
-            # Punkti par pāra/nepāra skaita atlikumu
-            if points_toGrab_t3 % 2 == 0:
-                player2_points_t3 = player2_points_t3+2
-            else:
-                player1_points_t3 = player1_points_t3+2
-            # Rezultātu pierakstīšana
-            result_arr.append(generateGameState(points_toGrab_t3,2,player1_points_t3,player2_points_t3))
-    # Ja bija otrā spēlētāja kārta (nav paredzēts ka spēlē 3 cilvēki)
-    else:
-        # Gadījums ja paņem 2
-        # Pārbaude vai var paņemt 2
-        if points_toGrab >= 2:
-            # Punktu manipulācijas
-            player1_points_t2 = player1_points
-            points_toGrab_t2 = points_toGrab-2
-            player2_points_t2 = player2_points+2
-            # Punkti par pāra/nepāra skaita atlikumu
-            if points_toGrab_t2 % 2 == 0:
-                player1_points_t2 = player1_points_t2+2
-            else:
-                player2_points_t2 = player2_points_t2+2
-            # Rezultātu pierakstīšana
-            result_arr.append(generateGameState(points_toGrab_t2,1,player1_points_t2,player2_points_t2))
-
-        # Gadījums ja paņem 3
-        # Pārbaude vai var paņemt 3
-        if points_toGrab >= 3:
-            # Punktu manipulācijas
-            player1_points_t3 = player1_points
-            points_toGrab_t3 = points_toGrab-3
-            player2_points_t3 = player2_points+3
-            # Punkti par pāra/nepāra skaita atlikumu
-            if points_toGrab_t3 % 2 == 0:
-                player1_points_t3 = player1_points_t3+2
-            else:
-                player2_points_t3 = player2_points_t3+2
-            # Rezultātu pierakstīšana
-            result_arr.append(generateGameState(points_toGrab_t3,1,player1_points_t3,player2_points_t3))
-    # Rezultātu izvade
-    return result_arr
+    result = [take2stones(gameState),take3stones(gameState)]
+    filtered_result = [state for state in result if state is not None]
+    return filtered_result
  
-def previousStates(gameState, tree):            # Inverse of nextGameStates
-    theoretical_arr = []                        # Rezultātu masīvs
-    player1_points = (gameState//10**5)%1000    # Pirmā spēlētāja punktu skaits
-    points_toGrab = (gameState//10**3)%100      # Atlikušo akmentiņu skaits
-    player2_points = gameState%1000             # Otrā spēlētāja punktu skaits
-    player = gameState//10**8                   # Spēlētāja kārta
-    # Ja ir pirmā spēlētāja kārta
+# === Undoing moves ===
+
+def undo_take2stones(gameState):
+    # Value gathering
+    player1_points = getPlayer1Points(gameState) 
+    player2_points = getPlayer2Points(gameState) 
+    player = getPlayer(gameState)
+    stone_count = getStones(gameState)
+    # If it is currently the 1st player's turn (means that previous was 2nd player)
     if player == 1:
-        # Tika paņemti 2 akmentiņi
-        # Punktu manipulācija
-        player1_points_t2 = player1_points
-        points_toGrab_t2 = points_toGrab
-        player2_points_t2 = player2_points
-        if points_toGrab % 2 == 0:
-            player1_points_t2 -= 2
+        if stone_count % 2 == 0:
+            player1_points -= 2
         else:
-            player2_points_t2 -= 2
-        player2_points_t2 -= 2
-        if player2_points_t2 >=0 and player1_points_t2 >=0:
-            points_toGrab_t2 += 2
-            theoretical_arr.append(generateGameState(points_toGrab_t2,2,player1_points_t2,player2_points_t2))
-        
-        # Tika paņemti 3 akmentiņi
-        player1_points_t3 = player1_points
-        points_toGrab_t3 = points_toGrab
-        player2_points_t3 = player2_points
-        if points_toGrab % 2 == 0:
-            player1_points_t3 -= 2
+            player2_points -= 2
+        player2_points -= 2
+        # Player points have to be positive values after returning them
+        if player1_points >=0 and player2_points >=0:
+            stone_count += 2
+    else: # 2nd player's turn
+        if stone_count % 2 == 0:
+            player2_points -= 2
         else:
-            player2_points_t3 -= 2
-        player2_points_t3 -= 3
+            player1_points -= 2
+        player1_points -= 2
         # Pārbaude vai šāds stāvoklis var pastāvēt
-        if player2_points_t3 >=0 and player1_points_t3 >=0:
-            points_toGrab_t3 += 3
-            theoretical_arr.append(generateGameState(points_toGrab_t3,2,player1_points_t3,player2_points_t3))
+        if player2_points >=0 and player1_points >=0:
+            stone_count += 2
+    previous_player = (player%2)+1
+    return generateGameState(stone_count, previous_player, player1_points, player2_points)
 
-    # Ja tagad ir otrā spēlētāja kārta
-    if player == 2:
-        # Tika paņemti 2 akmentiņi
-        # Punktu manipulācijas
-        player1_points_t2 = player1_points
-        points_toGrab_t2 = points_toGrab
-        player2_points_t2 = player2_points
-        if points_toGrab % 2 == 0:
-            player2_points_t2 -= 2
+def undo_take3stones(gameState):
+    # Value gathering
+    player1_points = getPlayer1Points(gameState) 
+    player2_points = getPlayer2Points(gameState) 
+    player = getPlayer(gameState)
+    stone_count = getStones(gameState)
+    # If it is currently the 1st player's turn (means that previous was 2nd player)
+    if player == 1:
+        if stone_count % 2 == 0:
+            player1_points -= 2
         else:
-            player1_points_t2 -= 2
-        player1_points_t2 -= 2
+            player2_points -= 2
+        player2_points -= 3
+        # Player points have to be positive values after returning them
+        if player1_points >=0 and player2_points >=0:
+            stone_count += 3
+    else: # 2nd player's turn
+        if stone_count % 2 == 0:
+            player2_points -= 2
+        else:
+            player1_points -= 2
+        player1_points -= 3
         # Pārbaude vai šāds stāvoklis var pastāvēt
-        if player2_points_t2 >=0 and player1_points_t2 >=0:
-            points_toGrab_t2 += 2
-            theoretical_arr.append(generateGameState(points_toGrab_t2,1,player1_points_t2,player2_points_t2))
+        if player2_points >=0 and player1_points >=0:
+            stone_count += 3
+    previous_player = (player%2)+1
+    return generateGameState(stone_count, previous_player, player1_points, player2_points)
 
-        # Tika paņemti 3 akmentiņi
-        player1_points_t3 = player1_points
-        points_toGrab_t3 = points_toGrab
-        player2_points_t3 = player2_points
-        if points_toGrab % 2 == 0:
-            player2_points_t3 -= 2
-        else:
-            player1_points_t3 -= 2
-        player1_points_t3 -= 3
-        if player2_points_t3 >=0 and player1_points_t3 >=0:
-            points_toGrab_t3 += 3
-            theoretical_arr.append(generateGameState(points_toGrab_t3,1,player1_points_t3,player2_points_t3))
-        
+def previousStates(gameState, tree):
+    result = [undo_take2stones(gameState),undo_take3stones(gameState)]
+    none_filtering = [state for state in result if state is not None]
     # Filtering
-    # No previous states exist
-    if len(theoretical_arr)==0:
+    if len(none_filtering)==0: # No previous states exist
         return []
-    # NOTE: I've yet to think and find a possibility
-    #       where a child has 2 parent nodes
-    #       but I am accounting for an edge case.
+    # Finding a match within a tree | NOTE: Have yet to find a case where a game state has 2 parents
     for level in tree:
-        for item in theoretical_arr:
+        for item in none_filtering:
             if item in level:
-                return list(set(theoretical_arr) & set(level))
-            
-    return [] # Also expecting edge case.
+                return list(set(none_filtering) & set(level))
+    return [] # Failsafe
 
 def generateTree(startingGameState, height=-1): # Generate tree
     # Initial starting value
     game_tree=[[startingGameState]]
     if height == -1:
-        startingStones = (startingGameState//10**3)%100
-        height=startingStones//2                # Maximum height calculation
+        height = getStones(startingGameState)//2 # Maximum height calculation
     # Iterē pāri koka līmenim katram stāvoklim pievienojot nākamos stāvokļus
     for i in range(height):
         additional_level = []
