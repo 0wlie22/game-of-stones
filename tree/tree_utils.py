@@ -21,11 +21,12 @@ def take2stones(gameState): # Logic for taking two stones
     if stone_count < 2: # Check if there are enough stones to take
         return 
     player = getPlayer(gameState)
+    player1_points = getPlayer1Points(gameState)
+    player2_points = getPlayer2Points(gameState)
     if player == 1: # If it's player 1's turn
         # Point arithmetic
-        player1_points = getPlayer1Points(gameState)+2
+        player1_points += 2
         stone_count -= 2
-        player2_points = getPlayer2Points(gameState)
         # Rule about additional points depending on remaining stone count
         if stone_count % 2 == 0:
             player2_points += 2
@@ -33,9 +34,8 @@ def take2stones(gameState): # Logic for taking two stones
             player1_points +=2
     else: # 2nd player's turn
         # Point arithmetic
-        player1_points = getPlayer1Points(gameState)
         stone_count -= 2
-        player2_points = getPlayer2Points(gameState)+2
+        player2_points += 2
         # Rule about additional points depending on remaining stone count
         if stone_count % 2 == 0:
             player1_points += 2
@@ -49,11 +49,12 @@ def take3stones(gameState): # Logic for taking two stones
     if stone_count < 3: # Check if there are enough stones to take
         return
     player = getPlayer(gameState)
+    player1_points = getPlayer1Points(gameState)
+    player2_points = getPlayer2Points(gameState)
     if player == 1: # If it's player 1's turn
         # Point arithmetic
-        player1_points = getPlayer1Points(gameState)+3
+        player1_points += 3
         stone_count -= 3
-        player2_points = getPlayer2Points(gameState)
         # Rule about additional points depending on remaining stone count
         if stone_count % 2 == 0:
             player2_points += 2
@@ -61,9 +62,8 @@ def take3stones(gameState): # Logic for taking two stones
             player1_points += 2
     else: # 2nd player's turn
         # Point arithmetic
-        player1_points = getPlayer1Points(gameState)
         stone_count -= 3
-        player2_points = getPlayer2Points(gameState)+3
+        player2_points += 3
         # Rule about additional points depending on remaining stone count
         if stone_count % 2 == 0:
             player1_points += 2
