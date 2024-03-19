@@ -18,5 +18,8 @@ class gameTree:
         print("Game state is not in tree.")
         return []
 
+    def getLevel(self, level):
+        return self.levels[level]
+
     def printAllLevels(self): # Debug purposes only
         print(self.levels)
