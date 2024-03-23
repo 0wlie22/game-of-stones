@@ -102,7 +102,7 @@ def previous_states(game_state, tree):
     # Filtering
     if len(none_filtering) == 0:  # No previous states exist
         return []
-    # Finding a match within a tree | NOTE: Have yet to find a case where a game state has 2 parents
+    # Finding a match within a tree
     for level in tree:
         for item in none_filtering:
             if item in level:
