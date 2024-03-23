@@ -110,11 +110,11 @@ def previous_states(game_state, tree):
     return []  # Failsafe
 
 
-def generate_tree(startinggame_state, height=-1):  # Generate tree
+def generate_tree(starting_game_state, height=-1):  # Generate tree
     # Initial starting value
-    game_tree = [[startinggame_state]]
+    game_tree = [[starting_game_state]]
     if height == -1:
-        height = get_stones(startinggame_state) // 2  # Maximum height calculation
+        height = get_stones(starting_game_state) // 2  # Maximum height calculation
     # Iterē pāri koka līmenim katram stāvoklim pievienojot nākamos stāvokļus
     for i in range(height):
         additional_level = []
