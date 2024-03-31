@@ -10,6 +10,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+
 from settings import (
     ALGORITHM_ALPHA_BETA,
     ALGORITHM_MINIMAX,
@@ -33,6 +34,47 @@ class Screen(QWidget):
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Escape:
             self.close()
+
+    def alpha_beta(self, state, depth, alpha, beta, maximizing_player):
+      if depth == 0 or state['stones'] == 0:
+        return state['score']
+
+      if maximizing_player:
+        max_eval = float('-inf')
+        for move in [2, 3]:
+            if state['stones'] - move >= 0:
+                next_state = {
+                    'stones': state['stones'] - move,
+                    'score': state['score']
+                }
+                if (state['stones'] - move) % 2 == 0:
+                    next_state['score'] += 2  
+                else:
+                    next_state['score'] += move 
+                eval = self.alpha_beta(next_state, depth - 1, alpha, beta, False)
+                max_eval = max(max_eval, eval)
+                alpha = max(alpha, eval)
+                if beta <= alpha:
+                    break  
+        return max_eval
+      else:
+        min_eval = float('inf')
+        for move in [2, 3]:
+            if state['stones'] - move >= 0:
+                next_state = {
+                    'stones': state['stones'] - move,
+                    'score': state['score']
+                }
+                if (state['stones'] - move) % 2 == 0:
+                    next_state['score'] += 2 
+                else:
+                    next_state['score'] += move  
+                eval = self.alpha_beta(next_state, depth - 1, alpha, beta, True)
+                min_eval = min(min_eval, eval)
+                beta = min(beta, eval)
+                if beta <= alpha:
+                    break  
+        return min_eval
 
     @Slot()
     def start_screen(self):
@@ -100,11 +142,20 @@ class Screen(QWidget):
     @Slot()
     def start_game(self):
         print("Game started")
-        # TODO: Implement minimax and alpha-beta algorithms
+        state = {
+            'stones': self.stone_count_box.value(),
+            'score': 0
+        }
         if self.algorithm_box.currentText() == ALGORITHM_MINIMAX:
             raise NotImplementedError("Minimax algorithm not implemented")
         elif self.algorithm_box.currentText() == ALGORITHM_ALPHA_BETA:
-            raise NotImplementedError("Alpha-Beta algorithm not implemented")
+            stone_count = self.stone_count_box.value()
+            depth = max(1, stone_count // 10)  
+            alpha = float('-inf')
+            beta = float('inf')
+            maximizing_player = True
+            result = self.alpha_beta(state, depth, alpha, beta, maximizing_player)
+            print("Alpha-Beta result:", result)
         else:
             raise ValueError("Invalid algorithm")
 
