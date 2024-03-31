@@ -9,10 +9,10 @@ def alpha_beta(state, depth, alpha, beta, maximizing_player):
             if state['stones'] - move >= 0:
                 next_state = {
                     'stones': state['stones'] - move,
-                    'score': state['score'] + move  # Update score by adding stones taken
+                    'score': state['score'] + move  
                 }
                 if (state['stones'] - move) % 2 == 0:
-                    next_state['score'] += 2  # Add bonus points if remaining stones are divisible by 2
+                    next_state['score'] += 2  
                 eval = alpha_beta(next_state, depth - 1, alpha, beta, False)
                 max_eval = max(max_eval, eval)
                 alpha = max(alpha, eval)
@@ -25,10 +25,10 @@ def alpha_beta(state, depth, alpha, beta, maximizing_player):
             if state['stones'] - move >= 0:
                 next_state = {
                     'stones': state['stones'] - move,
-                    'score': state['score'] + move  # Update score by adding stones taken
+                    'score': state['score'] + move 
                 }
                 if (state['stones'] - move) % 2 == 0:
-                    next_state['score'] += 2  # Add bonus points if remaining stones are divisible by 2
+                    next_state['score'] += 2 
                 eval = alpha_beta(next_state, depth - 1, alpha, beta, True)
                 min_eval = min(min_eval, eval)
                 beta = min(beta, eval)
