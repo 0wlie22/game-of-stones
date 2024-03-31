@@ -18,6 +18,7 @@ from settings import (
     SETTINGS_SCREEN_SIZE,
     SUBFONT_SIZE,
     TEXT_SIZE,
+    alpha_beta,
 )
 
 
@@ -100,11 +101,20 @@ class Screen(QWidget):
     @Slot()
     def start_game(self):
         print("Game started")
-        # TODO: Implement minimax and alpha-beta algorithms
+        state = {
+            'stones': self.stone_count_box.value(),
+            'score': 0
+        }
         if self.algorithm_box.currentText() == ALGORITHM_MINIMAX:
             raise NotImplementedError("Minimax algorithm not implemented")
         elif self.algorithm_box.currentText() == ALGORITHM_ALPHA_BETA:
-            raise NotImplementedError("Alpha-Beta algorithm not implemented")
+            stone_count = self.stone_count_box.value()
+            depth = max(1, stone_count // 10)
+            alpha = float('-inf')
+            beta = float('inf')
+            maximizing_player = True
+            result = alpha_beta(state, depth, alpha, beta, maximizing_player)  # Call alpha_beta directly
+            print("Alpha-Beta result:", result)
         else:
             raise ValueError("Invalid algorithm")
 
