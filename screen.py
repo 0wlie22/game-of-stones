@@ -1,5 +1,7 @@
+# pyright: basic
+
+
 from PySide6 import QtCore
-from PySide6.QtCore import Slot
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
     QComboBox,
@@ -10,6 +12,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from game import Game
+from minimax import Minimax
 from settings import (
     ALGORITHM_ALPHA_BETA,
     ALGORITHM_MINIMAX,
@@ -35,7 +39,6 @@ class Screen(QWidget):
         if event.key() == QtCore.Qt.Key_Escape:
             self.close()
 
-    @Slot()
     def start_screen(self) -> None:
         self.layout = QGridLayout()
 
@@ -44,9 +47,7 @@ class Screen(QWidget):
         self.title = QLabel("GAME OF STONES", alignment=QtCore.Qt.AlignCenter)
         self.title.setFont(QFont(FONT, FONT_SIZE_TITLE))
 
-        self.subtitle = QLabel(
-            "The game of strategy and wit", alignment=QtCore.Qt.AlignCenter
-        )
+        self.subtitle = QLabel("The game of strategy and wit", alignment=QtCore.Qt.AlignCenter)
         self.subtitle.setFont(QFont(FONT, SUBFONT_SIZE))
         self.subtitle.setStyleSheet("color: lightgrey")
 
@@ -60,7 +61,6 @@ class Screen(QWidget):
 
         self.setLayout(self.layout)
 
-    @Slot()
     def settings_screen(self) -> None:
         self.clear()
 
@@ -87,7 +87,6 @@ class Screen(QWidget):
         self.algorithm_box.setFont(QFont(FONT, TEXT_SIZE))
 
         self.start_game_button = QPushButton("Start Game", self)
-        self.start_game_button.clicked.connect(self.start_game)
         self.start_game_button.setFont(QFont(FONT, SUBFONT_SIZE))
 
         self.layout.addWidget(self.stone_count_label, 0, 0)
@@ -98,49 +97,48 @@ class Screen(QWidget):
         self.layout.addWidget(self.algorithm_box, 2, 2)
         self.layout.addWidget(self.start_game_button, 3, 0, 1, 3)
 
+        self.start_game_button.clicked.connect(self.start_game)
+
     def clear(self) -> None:
         for i in reversed(range(self.layout.count())):
             widget = self.layout.itemAt(i).widget()
             if widget is not None:
                 widget.deleteLater()
 
-    @Slot()
     def start_game(self) -> None:
         print("Game started")
-        self.game_screen()
-        # TODO: Implement minimax and alpha-beta algorithms
         if self.algorithm_box.currentText() == ALGORITHM_MINIMAX:
-            raise NotImplementedError("Minimax algorithm not implemented")
+            algorithm = Minimax()
         elif self.algorithm_box.currentText() == ALGORITHM_ALPHA_BETA:
             raise NotImplementedError("Alpha-Beta algorithm not implemented")
         else:
+            # Should never reach here
             raise ValueError("Invalid algorithm")
 
-    @Slot()
+        # Create a new game and enter the game screen
+        self.game = Game(self.stone_count_box.value(), self.first_player_box.currentText().lower(), algorithm)  # type: ignore
+        self.game_screen()
+
     def game_screen(self) -> None:
         self.clear()
         self.resize(*SCREEN_SIZE)
         self.setWindowTitle("Game of Stones")
 
-        stone_count = self.stone_count_box.value()
-        computer_score = 0
-        player_score = 0
-
         self.player_score_label = QLabel(
-            "Player: " + str(player_score), alignment=QtCore.Qt.AlignCenter
+            f"Player: {self.game.current_state.player_points}", alignment=QtCore.Qt.AlignCenter
         )
         self.player_score_label.setFont(QFont(FONT, SUBFONT_SIZE))
 
         self.computer_score_label = QLabel(
-            "Computer: " + str(computer_score), alignment=QtCore.Qt.AlignCenter
+            f"Computer: {self.game.current_state.computer_points}", alignment=QtCore.Qt.AlignCenter
         )
         self.computer_score_label.setFont(QFont(FONT, SUBFONT_SIZE))
 
-        self.take_two_button = QPushButton("TAKE 2", self)
-        self.take_three_button = QPushButton("TAKE 3", self)
+        self.take_two_button = QPushButton("TAKE 2 STONES", self)
+        self.take_three_button = QPushButton("TAKE 3 STONES", self)
 
         self.stone_count_label = QLabel(
-            "Stones: " + str(stone_count), alignment=QtCore.Qt.AlignCenter
+            f"Stones left: {self.game.current_state.stones_left}", alignment=QtCore.Qt.AlignCenter
         )
         self.stone_count_label.setFont(QFont(FONT, SUBFONT_SIZE))
 
@@ -149,3 +147,31 @@ class Screen(QWidget):
         self.layout.addWidget(self.stone_count_label, 1, 2)
         self.layout.addWidget(self.take_two_button, 3, 0)
         self.layout.addWidget(self.take_three_button, 3, 3)
+
+        if self.game.current_state.player_turn == "computer":
+            self.game.make_computer_move()
+            self.update_score()
+
+        self.take_two_button.clicked.connect(self.take_two_stones)
+        self.take_three_button.clicked.connect(self.take_three_stones)
+
+    def take_two_stones(self) -> None:
+        if self.game.can_take(2):
+            self.game.take_two_stones()
+            self.update_score()
+        if self.game.can_take(2):
+            self.game.make_computer_move()
+            self.update_score()
+
+    def take_three_stones(self) -> None:
+        if self.game.can_take(3):
+            self.game.take_three_stones()
+            self.update_score()
+        if self.game.can_take(3):
+            self.game.make_computer_move()
+            self.update_score()
+
+    def update_score(self) -> None:
+        self.player_score_label.setText(f"Player: {self.game.current_state.player_points}")
+        self.computer_score_label.setText(f"Computer: {self.game.current_state.computer_points}")
+        self.stone_count_label.setText(f"Stones: {self.game.current_state.stones_left}")

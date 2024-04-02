@@ -18,7 +18,7 @@ class Game:
         # Run the heuristic algorithm to estimate the value of each node
         self.heuristic_estimation_algorithm.estimate(self.root_state)
 
-    def make_player_move(self, stones: int) -> None:
+    def _make_player_move(self, stones: int) -> None:
         if stones not in (2, 3):
             raise ValueError("You can only take 2 or 3 stones.")
 
@@ -27,11 +27,22 @@ class Game:
         else:
             self.current_state = self.current_state.right_child()
 
+    def take_two_stones(self) -> None:
+        self._make_player_move(2)
+
+    def take_three_stones(self) -> None:
+        self._make_player_move(3)
+
     def make_computer_move(self) -> None:
-        if self.current_state.left_child().estimation_value == self.root_state.estimation_value:
-            self.current_state = self.current_state.left_child()
-        else:
-            self.current_state = self.current_state.right_child()
+        """Make the computer move.
+
+        The next state is chosen using Hill Climbing algorithm. It chooses the child with the highest estimated value.
+        """
+        if len(self.current_state.children) == 0:
+            raise ValueError("The game is already over.")
+
+        # Choose the child with the highest estimated value
+        self.current_state = max(self.current_state.children, key=lambda x: x.estimation_value)
 
     def can_take(self, stones: int) -> bool:
         return self.current_state.stones_left >= stones
