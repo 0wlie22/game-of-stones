@@ -92,6 +92,12 @@ class GameState:
             yield from child.post_order_traversal()
         yield self
 
+    def left_child(self) -> "GameState":
+        return self.children[0]
+
+    def right_child(self) -> "GameState":
+        return self.children[1]
+
     @property
     def estimation_value(self) -> int | None:
         return self._estimation_value
