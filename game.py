@@ -12,7 +12,12 @@ class Game:
     heuristic_estimation_algorithm: HeuristicAlgorithm
 
     def __post_init__(self) -> None:
-        self.root_state = GameState(self.starting_stones, self.starting_player).generate_state_tree()
+        try:
+            self.root_state = GameState.load_dump(self.starting_stones, self.starting_player)
+        except FileNotFoundError:
+            self.root_state = GameState(self.starting_stones, self.starting_player).generate_state_tree()
+            self.root_state.save_dump()
+
         self.current_state = self.root_state
 
         # Run the heuristic algorithm to estimate the value of each node
