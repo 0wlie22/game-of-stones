@@ -1,6 +1,6 @@
 # Windows sizes
 SCREEN_SIZE = (800, 600)
-SETTINGS_SCREEN_SIZE = (500, 400)
+SETTINGS_SCREEN_SIZE = (800, 400)
 
 # Text
 FONT = "Georgia"
