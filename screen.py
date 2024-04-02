@@ -22,28 +22,26 @@ from settings import (
 
 
 class Screen(QWidget):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
-        self.initUI()
+        self.init_ui()
 
-    def initUI(self):
+    def init_ui(self) -> None:
         self.setWindowTitle("Game of Stones")
         self.start_screen()
 
-    def keyPressEvent(self, event):
+    def key_press_event(self, event) -> None:  # noqa: ANN001
         if event.key() == QtCore.Qt.Key_Escape:
             self.close()
 
     @Slot()
-    def start_screen(self):
+    def start_screen(self) -> None:
         self.layout = QGridLayout()
 
         self.title = QLabel("GAME OF STONES", alignment=QtCore.Qt.AlignCenter)
         self.title.setFont(QFont(FONT, FONT_SIZE_TITLE))
 
-        self.subtitle = QLabel(
-            "The game of strategy and wit", alignment=QtCore.Qt.AlignCenter
-        )
+        self.subtitle = QLabel("The game of strategy and wit", alignment=QtCore.Qt.AlignCenter)
         self.subtitle.setFont(QFont(FONT, SUBFONT_SIZE))
         self.subtitle.setStyleSheet("color: lightgrey")
 
@@ -58,7 +56,7 @@ class Screen(QWidget):
         self.setLayout(self.layout)
 
     @Slot()
-    def settings_screen(self):
+    def settings_screen(self) -> None:
         self.clear()
 
         self.setWindowTitle("Game of Stones - Settings")
@@ -98,7 +96,7 @@ class Screen(QWidget):
         self.setLayout(self.layout)
 
     @Slot()
-    def start_game(self):
+    def start_game(self) -> None:
         print("Game started")
         # TODO: Implement minimax and alpha-beta algorithms
         if self.algorithm_box.currentText() == ALGORITHM_MINIMAX:
@@ -108,7 +106,7 @@ class Screen(QWidget):
         else:
             raise ValueError("Invalid algorithm")
 
-    def clear(self):
+    def clear(self) -> None:
         for i in reversed(range(self.layout.count())):
             widget = self.layout.itemAt(i).widget()
             if widget is not None:
