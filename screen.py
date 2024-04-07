@@ -3,7 +3,7 @@
 import logging
 
 from PySide6 import QtCore
-from PySide6.QtCore import QCoreApplication
+from PySide6.QtCore import QCoreApplication, QTimer
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
     QBoxLayout,
@@ -46,11 +46,6 @@ class Screen(QWidget):
         logging.info("Initializing UI")
         self.setWindowTitle("Game of Stones")
         self.start_screen()
-
-    def key_press_event(self, event) -> None:  # noqa: ANN001
-        if event.key() == QtCore.Qt.Key_Escape:
-            logging.info("Exiting game")
-            self.close()
 
     def start_screen(self) -> None:
         logging.info("Start screen")
@@ -116,7 +111,24 @@ class Screen(QWidget):
         self.layout.addWidget(self.algorithm_box, 2, 2)
         self.layout.addWidget(self.start_game_button, 3, 0, 1, 3)
 
-        self.start_game_button.clicked.connect(self.start_game)
+        self.start_game_button.clicked.connect(self.loading_screen)
+
+    def loading_screen(self) -> None:
+        logging.info("Loading screen")
+        self.stone_count = self.stone_count_box.value()
+        self.first_player = self.first_player_box.currentText().lower()
+        self.algorithm = self.algorithm_box.currentText()
+
+        self.clear_layout(self.layout)
+        self.resize(*SCREEN_SIZE)
+
+        self.setWindowTitle("Game of Stones - Loading")
+
+        self.loading_label = QLabel("Loading...", alignment=QtCore.Qt.AlignCenter)
+        self.loading_label.setFont(QFont(FONT, MINI_TITLE_SIZE))
+        self.layout.addWidget(self.loading_label, 0, 0)
+
+        QTimer.singleShot(2000, self.start_game)
 
     def clear_layout(self, layout) -> None:
         while layout.count():
@@ -129,10 +141,10 @@ class Screen(QWidget):
     def start_game(self) -> None:
         logging.info("Starting game")
 
-        if self.algorithm_box.currentText() == ALGORITHM_MINIMAX:
+        if self.algorithm == ALGORITHM_MINIMAX:
             logging.info("Using Minimax algorithm")
             algorithm = Minimax()
-        elif self.algorithm_box.currentText() == ALGORITHM_ALPHA_BETA:
+        elif self.algorithm == ALGORITHM_ALPHA_BETA:
             logging.info("Using Alpha-Beta algorithm")
             raise NotImplementedError("Alpha-Beta algorithm not implemented")
         else:
@@ -141,11 +153,11 @@ class Screen(QWidget):
 
         # Create a new game and enter the game screen
         self.game = Game(
-            self.stone_count_box.value(),
-            self.first_player_box.currentText().lower(),
+            self.stone_count,
+            self.first_player,
             algorithm,
         )  # type: ignore
-        logging.info("Game created with %d stones", self.stone_count_box.value())
+        logging.info("Game created with %d stones", self.stone_count)
         self.game_screen()
 
     def game_screen(self) -> None:
@@ -296,6 +308,9 @@ class Screen(QWidget):
         )
 
         winner = "Player" if player_final_score > computer_final_score else "Computer"
+        # add draw condition
+        if player_final_score == computer_final_score:
+            winner = "Draw"
         logging.info("Winner: %s", winner)
 
         self.clear_layout(self.layout)
@@ -305,8 +320,12 @@ class Screen(QWidget):
 
         if winner == "Player":
             result_message = "YOU WON!"
-        else:
+        elif winner == "Computer":
             result_message = "GAME OVER!"
+        else:
+            result_message = "DRAW!"
+
+        logging.info(f"Player: {player_final_score}, Computer: {computer_final_score}")
 
         result_message_label = QLabel(result_message, alignment=QtCore.Qt.AlignCenter)
         result_message_label.setFont(QFont(FONT, FONT_SIZE_TITLE))
