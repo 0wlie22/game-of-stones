@@ -254,6 +254,11 @@ class Screen(QWidget):
         self.update_score()
 
     def update_score(self) -> None:
+        # Set the button states
+        self.take_two_button.setDisabled(not self.game.can_take(2))
+        self.take_three_button.setDisabled(not self.game.can_take(3))
+
+        # Update the labels
         self.player_stones_label.setText(
             f"Stones: {self.game.current_state.player_stones}"
         )
@@ -269,6 +274,7 @@ class Screen(QWidget):
 
         QCoreApplication.processEvents()
 
+        # Check if the game is over
         if (
             self.game.current_state.stones_left <= 1
             and not self.game.can_take(2)
