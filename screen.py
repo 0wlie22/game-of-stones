@@ -266,11 +266,6 @@ class Screen(QWidget):
         self.score_label.setText(
             f"{self.game.current_state.player_points}:{self.game.current_state.computer_points}"
         )
-        logging.info(
-            "Player: %d, Computer: %d",
-            self.game.current_state.player_points,
-            self.game.current_state.computer_points,
-        )
 
         QCoreApplication.processEvents()
 
@@ -310,4 +305,14 @@ class Screen(QWidget):
         result_message_label = QLabel(result_message, alignment=QtCore.Qt.AlignCenter)
         result_message_label.setFont(QFont(FONT, FONT_SIZE_TITLE))
 
+        self.restart_button = QPushButton("Restart game", self)
+        self.restart_button.setFont(QFont(FONT, SUBFONT_SIZE))
+        self.restart_button.clicked.connect(self.restart_game)
+
         self.layout.addWidget(result_message_label, 0, 2, 1, 4)
+        self.layout.addWidget(self.restart_button, 5, 1, 1, 6)
+
+    def restart_game(self) -> None:
+        logging.info("Restarting game")
+        self.game = None
+        self.settings_screen()
