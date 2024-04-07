@@ -32,23 +32,29 @@ from settings import (
 
 
 class Screen(QWidget):
-    game_state_changed = QtCore.Signal()
+    logging.basicConfig(
+        format="%(asctime)s: %(levelname)s - %(message)s",
+        level=logging.INFO,
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
 
     def __init__(self) -> None:
         super().__init__()
         self.init_ui()
-        self.game_state_changed.connect(self.update_score)
 
     def init_ui(self) -> None:
+        logging.info("Initializing UI")
         self.setWindowTitle("Game of Stones")
         self.start_screen()
-        self.show()
 
     def key_press_event(self, event) -> None:  # noqa: ANN001
         if event.key() == QtCore.Qt.Key_Escape:
+            logging.info("Exiting game")
             self.close()
 
     def start_screen(self) -> None:
+        logging.info("Start screen")
+
         self.layout = QGridLayout()
 
         self.resize(*SCREEN_SIZE)
@@ -73,6 +79,8 @@ class Screen(QWidget):
         self.setLayout(self.layout)
 
     def settings_screen(self) -> None:
+        logging.info("Settings screen")
+
         self.clear_layout(self.layout)
 
         self.setWindowTitle("Game of Stones - Settings")
@@ -122,8 +130,10 @@ class Screen(QWidget):
         logging.info("Starting game")
 
         if self.algorithm_box.currentText() == ALGORITHM_MINIMAX:
+            logging.info("Using Minimax algorithm")
             algorithm = Minimax()
         elif self.algorithm_box.currentText() == ALGORITHM_ALPHA_BETA:
+            logging.info("Using Alpha-Beta algorithm")
             raise NotImplementedError("Alpha-Beta algorithm not implemented")
         else:
             # Should never reach here
@@ -135,9 +145,12 @@ class Screen(QWidget):
             self.first_player_box.currentText().lower(),
             algorithm,
         )  # type: ignore
+        logging.info("Game created with %d stones", self.stone_count_box.value())
         self.game_screen()
 
     def game_screen(self) -> None:
+        logging.info("Game screen")
+
         self.clear_layout(self.layout)
         self.resize(*SCREEN_SIZE)
         self.setWindowTitle("Game of Stones")
@@ -219,6 +232,8 @@ class Screen(QWidget):
             self.update_score()
 
     def take_two_stones(self) -> None:
+        logging.info("Player takes 2 stones")
+
         if self.game.can_take(2):
             self.game.take_two_stones()
 
@@ -228,6 +243,8 @@ class Screen(QWidget):
         self.update_score()
 
     def take_three_stones(self) -> None:
+        logging.info("Player takes 3 stones")
+
         if self.game.can_take(3):
             self.game.take_three_stones()
 
@@ -249,6 +266,11 @@ class Screen(QWidget):
         self.score_label.setText(
             f"{self.game.current_state.player_points}:{self.game.current_state.computer_points}"
         )
+        logging.info(
+            "Player: %d, Computer: %d",
+            self.game.current_state.player_points,
+            self.game.current_state.computer_points,
+        )
 
         QCoreApplication.processEvents()
 
@@ -260,6 +282,8 @@ class Screen(QWidget):
             self.game_over_screen()
 
     def game_over_screen(self) -> None:
+        logging.info("Game over")
+
         # Final score calculations
         player_final_score = (
             self.game.current_state.player_points
@@ -271,6 +295,7 @@ class Screen(QWidget):
         )
 
         winner = "Player" if player_final_score > computer_final_score else "Computer"
+        logging.info("Winner: %s", winner)
 
         self.clear_layout(self.layout)
 
