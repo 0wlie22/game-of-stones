@@ -1,21 +1,27 @@
+import logging
 from dataclasses import dataclass
 from typing import Literal
 
 from algorithm import HeuristicAlgorithm
 from game_state import GameState
+from settings import COMPUTER_PLAYER, HUMAN_PLAYER
 
 
 @dataclass
 class Game:
     starting_stones: int
-    starting_player: Literal["computer", "player"]
+    starting_player: Literal[COMPUTER_PLAYER, HUMAN_PLAYER]
     heuristic_estimation_algorithm: HeuristicAlgorithm
 
     def __post_init__(self) -> None:
         try:
-            self.root_state = GameState.load_dump(self.starting_stones, self.starting_player)
+            self.root_state = GameState.load_dump(
+                self.starting_stones, self.starting_player
+            )
         except FileNotFoundError:
-            self.root_state = GameState(self.starting_stones, self.starting_player).generate_state_tree()
+            self.root_state = GameState(
+                self.starting_stones, self.starting_player
+            ).generate_state_tree()
             self.root_state.save_dump()
 
         self.current_state = self.root_state
@@ -47,7 +53,10 @@ class Game:
             raise ValueError("The game is already over.")
 
         # Choose the child with the highest estimated value
-        self.current_state = max(self.current_state.children, key=lambda x: x.estimation_value)
+        self.current_state = max(
+            self.current_state.children, key=lambda x: x.estimation_value
+        )
+        logging.info(f"Computer takes {self.current_state.computer_stones} stones")
 
     def can_take(self, stones: int) -> bool:
         return self.current_state.stones_left >= stones

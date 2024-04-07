@@ -13,3 +13,7 @@ TEXT_SIZE = 15
 # Algorithms
 ALGORITHM_MINIMAX = "Minimax"
 ALGORITHM_ALPHA_BETA = "Alpha-Beta"
+
+# Players
+HUMAN_PLAYER = "Player"
+COMPUTER_PLAYER = "Computer"

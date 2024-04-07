@@ -20,8 +20,10 @@ from minimax import Minimax
 from settings import (
     ALGORITHM_ALPHA_BETA,
     ALGORITHM_MINIMAX,
+    COMPUTER_PLAYER,
     FONT,
     FONT_SIZE_TITLE,
+    HUMAN_PLAYER,
     MINI_TITLE_SIZE,
     SCREEN_SIZE,
     SETTINGS_SCREEN_SIZE,
@@ -91,7 +93,7 @@ class Screen(QWidget):
         self.first_player_label = QLabel("First player:")
         self.first_player_label.setFont(QFont(FONT, SUBFONT_SIZE))
         self.first_player_box = QComboBox(self)
-        self.first_player_box.addItems(["Player", "Computer"])
+        self.first_player_box.addItems([HUMAN_PLAYER, COMPUTER_PLAYER])
         self.first_player_box.setFont(QFont(FONT, TEXT_SIZE))
 
         self.algorithm_label = QLabel("Computer Algorithm:")
@@ -186,7 +188,7 @@ class Screen(QWidget):
         self.player_score_label.setFont(QFont(FONT, SUBFONT_SIZE))
 
         self.player_info = QBoxLayout(QBoxLayout.TopToBottom)
-        self.player_label = QLabel("Player")
+        self.player_label = QLabel(HUMAN_PLAYER)
         self.player_label.setFont(QFont(FONT, MINI_TITLE_SIZE))
         self.player_stones_label = QLabel(
             f"Stones: {self.game.current_state.player_points}"
@@ -203,7 +205,7 @@ class Screen(QWidget):
         )
         self.computer_score_label.setFont(QFont(FONT, SUBFONT_SIZE))
         self.computer_info = QBoxLayout(QBoxLayout.TopToBottom)
-        self.computer_label = QLabel("Computer", alignment=QtCore.Qt.AlignRight)
+        self.computer_label = QLabel(COMPUTER_PLAYER, alignment=QtCore.Qt.AlignRight)
         self.computer_label.setFont(QFont(FONT, MINI_TITLE_SIZE))
         self.computer_stones_label = QLabel(
             f"Stones: {self.game.current_state.computer_points}",
@@ -239,7 +241,7 @@ class Screen(QWidget):
         self.layout.addWidget(self.take_three_button, 5, 5, 1, 3)
 
         # Make the first move
-        if self.game.current_state.player_turn == "computer":
+        if self.game.current_state.player_turn == COMPUTER_PLAYER:
             self.game.make_computer_move()
             self.update_score()
 
@@ -307,7 +309,11 @@ class Screen(QWidget):
             + self.game.current_state.computer_stones
         )
 
-        winner = "Player" if player_final_score > computer_final_score else "Computer"
+        winner = (
+            HUMAN_PLAYER
+            if player_final_score > computer_final_score
+            else COMPUTER_PLAYER
+        )
         # add draw condition
         if player_final_score == computer_final_score:
             winner = "Draw"
@@ -318,9 +324,9 @@ class Screen(QWidget):
         self.player_stones_label.setText(f"Score: {player_final_score}")
         self.computer_stones_label.setText(f"Score: {computer_final_score}")
 
-        if winner == "Player":
+        if winner == HUMAN_PLAYER:
             result_message = "YOU WON!"
-        elif winner == "Computer":
+        elif winner == COMPUTER_PLAYER:
             result_message = "GAME OVER!"
         else:
             result_message = "DRAW!"
