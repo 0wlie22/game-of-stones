@@ -56,7 +56,11 @@ class Game:
         self.current_state = max(
             self.current_state.children, key=lambda x: x.estimation_value
         )
-        logging.info(f"Computer takes {self.current_state.computer_stones} stones")
+
+        stones_taken = (
+            self.current_state.parent.stones_left - self.current_state.stones_left
+        )
+        logging.info("Computer takes %d stones", stones_taken)
 
     def can_take(self, stones: int) -> bool:
         return self.current_state.stones_left >= stones

@@ -3,6 +3,7 @@ from collections.abc import Generator
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Literal, Self
+
 from settings import COMPUTER_PLAYER, HUMAN_PLAYER
 
 
@@ -14,7 +15,6 @@ class GameState:
     player_points: int = field(default=0, hash=True)
     computer_stones: int = field(default=0, hash=True)
     player_stones: int = field(default=0, hash=True)
-    computer_stones_taken: int = field(default=0, hash=True)
     _estimation_value: int | None = field(default=None, init=False, hash=False)
     parent: "GameState | None" = field(default=None, init=False, hash=False)
     children: list["GameState"] = field(default_factory=list, init=False, hash=False)
@@ -36,7 +36,6 @@ class GameState:
                     self.player_points + add_to_player,
                     self.computer_stones + stones,
                     self.player_stones,
-                    stones,
                 )
             elif self.player_turn == HUMAN_PLAYER:
                 new_state = GameState(
@@ -46,7 +45,6 @@ class GameState:
                     self.player_points + add_to_player,
                     self.computer_stones,
                     self.player_stones + stones,
-                    stones,
                 )
             self.children.append(new_state)  # type: ignore
 
@@ -127,6 +125,7 @@ class GameState:
             return pickle.load(fh)  # noqa: S301
 
     def save_dump(self) -> None:
+        Path("dumps").mkdir(exist_ok=True)
         dump_path = Path("dumps") / f"{self.stones_left}-{self.player_turn}-tree.dump"
         with dump_path.open("wb") as fh:
             pickle.dump(self, fh)

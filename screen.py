@@ -40,6 +40,9 @@ class Screen(QWidget):
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
+    BLOCK_WIDTH = SETTINGS_SCREEN_SIZE[0] // 10
+    BLOCK_HEIGHT = SETTINGS_SCREEN_SIZE[1] // 12
+
     def __init__(self) -> None:
         super().__init__()
         self.init_ui()
@@ -66,12 +69,13 @@ class Screen(QWidget):
         self.subtitle.setStyleSheet("color: lightgrey")
 
         self.new_game_button = QPushButton("New Game", self)
-        self.new_game_button.clicked.connect(self.settings_screen)
         self.new_game_button.setFont(QFont(SUBFONT, SUBFONT_SIZE))
+        self.new_game_button.setFixedSize(self.BLOCK_WIDTH * 8, self.BLOCK_HEIGHT * 2)
+        self.new_game_button.clicked.connect(self.settings_screen)
 
-        self.layout.addWidget(self.title, 0, 0, 1, 2)
-        self.layout.addWidget(self.subtitle, 1, 0, 1, 2)
-        self.layout.addWidget(self.new_game_button, 2, 0, 1, 2)
+        self.layout.addWidget(self.title, 0, 0)
+        self.layout.addWidget(self.subtitle, 1, 0)
+        self.layout.addWidget(self.new_game_button, 2, 0)
 
         self.setLayout(self.layout)
 
@@ -103,7 +107,11 @@ class Screen(QWidget):
         self.algorithm_box.setFont(QFont(FONT, TEXT_SIZE))
 
         self.start_game_button = QPushButton("Start Game", self)
-        self.start_game_button.setFont(QFont(FONT, SUBFONT_SIZE))
+        self.start_game_button.setFont(QFont(SUBFONT, SUBFONT_SIZE))
+        self.start_game_button.setFixedSize(
+            self.BLOCK_WIDTH * 10, self.BLOCK_HEIGHT * 2
+        )
+        self.start_game_button.clicked.connect(self.loading_screen)
 
         self.layout.addWidget(self.stone_count_label, 0, 0)
         self.layout.addWidget(self.stone_count_box, 0, 2)
@@ -112,8 +120,6 @@ class Screen(QWidget):
         self.layout.addWidget(self.algorithm_label, 2, 0)
         self.layout.addWidget(self.algorithm_box, 2, 2)
         self.layout.addWidget(self.start_game_button, 3, 0, 1, 3)
-
-        self.start_game_button.clicked.connect(self.loading_screen)
 
     def loading_screen(self) -> None:
         logging.info("Loading screen")
@@ -169,15 +175,15 @@ class Screen(QWidget):
         self.resize(*SCREEN_SIZE)
         self.setWindowTitle("Game of Stones")
 
-        block_width = SETTINGS_SCREEN_SIZE[0] // 10
-        block_height = SETTINGS_SCREEN_SIZE[1] // 12
-
         # Buttons
         self.take_two_button = QPushButton("TAKE 2 STONES", self)
-        self.take_two_button.setFixedSize(block_width * 3, block_height * 2)
+        self.take_two_button.setFixedSize(self.BLOCK_WIDTH * 3, self.BLOCK_HEIGHT * 2)
+        self.take_two_button.setFont(QFont(SUBFONT, SUBFONT_SIZE))
         self.take_two_button.clicked.connect(self.take_two_stones)
+
         self.take_three_button = QPushButton("TAKE 3 STONES", self)
-        self.take_three_button.setFixedSize(block_width * 3, block_height * 2)
+        self.take_three_button.setFixedSize(self.BLOCK_WIDTH * 3, self.BLOCK_HEIGHT * 2)
+        self.take_three_button.setFont(QFont(SUBFONT, SUBFONT_SIZE))
         self.take_three_button.clicked.connect(self.take_three_stones)
 
         # Player info
@@ -230,7 +236,10 @@ class Screen(QWidget):
         self.stone_count_label.setFont(QFont(FONT, MINI_TITLE_SIZE))
 
         self.layout.setContentsMargins(
-            block_width / 2, block_height / 2, block_width / 2, block_height / 2
+            self.BLOCK_WIDTH / 2,
+            self.BLOCK_HEIGHT / 2,
+            self.BLOCK_WIDTH / 2,
+            self.BLOCK_HEIGHT / 2,
         )
 
         self.layout.addWidget(self.score_label, 0, 3, 1, 2)
@@ -254,7 +263,13 @@ class Screen(QWidget):
         if self.game.can_take(2):
             self.game.make_computer_move()
 
-        self.update_score()
+        self.update_score(
+            (
+                2,
+                self.game.current_state.parent.stones_left
+                - self.game.current_state.stones_left,
+            )
+        )
 
     def take_three_stones(self) -> None:
         logging.info("Player takes 3 stones")
@@ -265,19 +280,25 @@ class Screen(QWidget):
         if self.game.can_take(3):
             self.game.make_computer_move()
 
-        self.update_score()
+        self.update_score(
+            (
+                3,
+                self.game.current_state.parent.stones_left
+                - self.game.current_state.stones_left,
+            )
+        )
 
-    def update_score(self) -> None:
+    def update_score(self, stones_taken: tuple) -> None:
         # Set the button states
         self.take_two_button.setDisabled(not self.game.can_take(2))
         self.take_three_button.setDisabled(not self.game.can_take(3))
 
         # Update the labels
         self.player_stones_label.setText(
-            f"Stones: {self.game.current_state.player_stones}"
+            f"Stones: {self.game.current_state.player_stones} (+ {stones_taken[0]})"
         )
         self.computer_stones_label.setText(
-            f"Stones: {self.game.current_state.computer_stones}"
+            f"Stones: {self.game.current_state.computer_stones} (+ {stones_taken[1]})"
         )
         self.stone_count_label.setText(
             f"Stones left:\n{self.game.current_state.stones_left}"
@@ -336,12 +357,30 @@ class Screen(QWidget):
         result_message_label = QLabel(result_message, alignment=QtCore.Qt.AlignCenter)
         result_message_label.setFont(QFont(FONT, FONT_SIZE_TITLE))
 
+        # Player overall score
+        self.player_overall_score_label = QLabel(
+            f"Player: {player_final_score}", alignment=QtCore.Qt.AlignCenter
+        )
+        self.player_overall_score_label.setFont(QFont(FONT, SUBFONT_SIZE))
+        self.player_overall_score_label.setStyleSheet("color: lightgrey")
+
+        # Computer overall score
+        self.computer_overall_score_label = QLabel(
+            f"Computer: {computer_final_score}", alignment=QtCore.Qt.AlignCenter
+        )
+        self.computer_overall_score_label.setFont(QFont(FONT, SUBFONT_SIZE))
+        self.computer_overall_score_label.setStyleSheet("color: lightgrey")
+
+        # Restarting the game
         self.restart_button = QPushButton("Restart game", self)
-        self.restart_button.setFont(QFont(FONT, SUBFONT_SIZE))
+        self.restart_button.setFont(QFont(SUBFONT, SUBFONT_SIZE))
         self.restart_button.clicked.connect(self.restart_game)
+        self.restart_button.setFixedSize(self.BLOCK_WIDTH * 8, self.BLOCK_HEIGHT * 2)
 
         self.layout.addWidget(result_message_label, 0, 2, 1, 4)
         self.layout.addWidget(self.restart_button, 5, 1, 1, 6)
+        self.layout.addWidget(self.player_overall_score_label, 1, 0, 1, 3)
+        self.layout.addWidget(self.computer_overall_score_label, 1, 5, 1, 3)
 
     def restart_game(self) -> None:
         logging.info("Restarting game")
