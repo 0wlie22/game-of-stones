@@ -10,7 +10,7 @@ from settings import COMPUTER_PLAYER, HUMAN_PLAYER
 @dataclass(slots=True)
 class GameState:
     stones_left: int = field(hash=True)
-    player_turn: Literal[COMPUTER_PLAYER, HUMAN_PLAYER] = field(hash=True)
+    player_turn: Literal["computer", "player"] = field(hash=True)
     computer_points: int = field(default=0, hash=True)
     player_points: int = field(default=0, hash=True)
     computer_stones: int = field(default=0, hash=True)
@@ -29,31 +29,34 @@ class GameState:
                 stones, self.player_turn
             )
             if self.player_turn == COMPUTER_PLAYER:
-                new_state = GameState(
-                    stones_left,
-                    HUMAN_PLAYER,
-                    self.computer_points + add_to_computer,
-                    self.player_points + add_to_player,
-                    self.computer_stones + stones,
-                    self.player_stones,
+                self.children.append(
+                    GameState(
+                        stones_left,
+                        "player",
+                        self.computer_points + add_to_computer,
+                        self.player_points + add_to_player,
+                        self.computer_stones + stones,
+                        self.player_stones,
+                    )
                 )
             elif self.player_turn == HUMAN_PLAYER:
-                new_state = GameState(
-                    stones_left,
-                    COMPUTER_PLAYER,
-                    self.computer_points + add_to_computer,
-                    self.player_points + add_to_player,
-                    self.computer_stones,
-                    self.player_stones + stones,
+                self.children.append(
+                    GameState(
+                        stones_left,
+                        "computer",
+                        self.computer_points + add_to_computer,
+                        self.player_points + add_to_player,
+                        self.computer_stones,
+                        self.player_stones + stones,
+                    )
                 )
-            self.children.append(new_state)  # type: ignore
 
         # Set the parent of the children to the current node
         for child in self.children:
             child.parent = self
 
     def points_to_add(
-        self, stones: int, player_turn: Literal[COMPUTER_PLAYER, HUMAN_PLAYER]
+        self, stones: int, player_turn: Literal["computer", "player"]
     ) -> tuple[int, int, int]:
         """Return the points to add to the computer and player based on the number of stones taken.
 
@@ -120,7 +123,10 @@ class GameState:
         starting_stones: int,
         starting_player: Literal[COMPUTER_PLAYER, HUMAN_PLAYER],
     ) -> "GameState":
-        dump_path = Path("dumps") / f"{starting_stones}-{starting_player}-tree.dump"
+        dump_dir = Path("dumps")
+        if not dump_dir.exists():
+            dump_dir.mkdir()
+        dump_path = dump_dir / f"{starting_stones}-{starting_player}-tree.dump"
         with dump_path.open("rb") as fh:
             return pickle.load(fh)  # noqa: S301
 
