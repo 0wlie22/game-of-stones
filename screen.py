@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
 
 from game import Game
 from minimax import Minimax
+from alpha_beta import AlphaBeta
 from settings import (
     ALGORITHM_ALPHA_BETA,
     ALGORITHM_MINIMAX,
@@ -154,10 +155,12 @@ class Screen(QWidget):
             algorithm = Minimax()
         elif self.algorithm == ALGORITHM_ALPHA_BETA:
             logging.info("Using Alpha-Beta algorithm")
-            raise NotImplementedError("Alpha-Beta algorithm not implemented")
+            algorithm = AlphaBeta()
         else:
             # Should never reach here
             raise ValueError("Invalid algorithm")
+        
+    
 
         # Create a new game and enter the game screen
         self.game = Game(
