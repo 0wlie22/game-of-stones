@@ -4,13 +4,12 @@ from typing import Literal
 
 from algorithm import HeuristicAlgorithm
 from game_state import GameState
-from settings import COMPUTER_PLAYER, HUMAN_PLAYER
 
 
 @dataclass
 class Game:
     starting_stones: int
-    starting_player: Literal[COMPUTER_PLAYER, HUMAN_PLAYER]
+    starting_player: Literal["computer", "player"]
     heuristic_estimation_algorithm: HeuristicAlgorithm
 
     def __post_init__(self) -> None:
