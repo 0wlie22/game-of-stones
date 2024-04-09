@@ -2,32 +2,14 @@ from game_state import GameState
 
 
 class AlphaBeta:
-    def estimate(self, root: GameState) -> None:
-        self.alpha_beta(root, float('-inf'), float('inf'), True)
-
-    def alpha_beta(self, node: GameState, alpha: float, beta: float, maximizing_player: bool) -> float:
-        if not node.children:
-            self._estimate_leaf(node)
-            return node.estimation_value
-
-        if maximizing_player:
-            value = float('-inf')
-            for child in node.children:
-                eval_child = self.alpha_beta(child, alpha, beta, False)
-                value = max(value, eval_child)
-                alpha = max(alpha, value)
-                if beta <= alpha:
-                    break
-            return value
-        else:
-            value = float('inf')
-            for child in node.children:
-                eval_child = self.alpha_beta(child, alpha, beta, True)
-                value = min(value, eval_child)
-                beta = min(beta, value)
-                if beta <= alpha:
-                    break
-            return value
+    def estimate(
+        self, root: GameState, alpha: float = -float("inf"), beta: float = float("inf")
+    ) -> None:
+        for node in root.post_order_traversal():
+            if node.children:
+                self._estimate_node(node, alpha, beta)
+            else:
+                self._estimate_leaf(node)
 
     def _estimate_leaf(self, node: GameState) -> None:
         computer_total = node.computer_stones + node.computer_points
@@ -39,3 +21,23 @@ class AlphaBeta:
             node.estimation_value = 0
         else:
             node.estimation_value = -1
+
+    def _estimate_node(self, node: GameState, alpha: float, beta: float) -> None:
+        if node.player_turn == "computer":
+            max_value = -float("inf")
+            for child in node.children:
+                if child.estimation_value is not None:
+                    max_value = max(max_value, child.estimation_value)
+                    alpha = max(alpha, max_value)
+                    if beta <= alpha:
+                        break
+            node.estimation_value = max_value
+        else:
+            min_value = float("inf")
+            for child in node.children:
+                if child.estimation_value is not None:
+                    min_value = min(min_value, child.estimation_value)
+                    beta = min(beta, min_value)
+                    if beta <= alpha:
+                        break
+            node.estimation_value = min_value
