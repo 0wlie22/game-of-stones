@@ -1,2 +1,6 @@
 __pycache__
 pyproject.toml
+
+dumps
+game_log.md
+*.pdf
