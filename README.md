@@ -21,25 +21,10 @@ pre-commit install
 
 # run the application
 python main.py
+# or run in DEBUG mode, to see the hidden logs
+python --log=DEBUG
 ```
 
-## Spēles apraksts
-
-Pirms spēles sākuma lietotājs izvēlas:
-
-- sākuma akmentiņu skaitu (no 50 līdz 70)
-- kurš pirmais uzsāks spēli - lietotājs vai dators
-- kuru algoritmu izmantos dators
-
-Uz galda atrodas tik daudz akmentiņu, cik izvēlās cilvēks-spēlētājs (no 50 līdz 70).
-Katram spēlētājam spēles sākumā ir 0 akmentiņu un 0 punktu.
-Spēlētāji izpilda gājienus pēc kārtas. Spēlētājs savā gājienā drīkst paņemt sev 2 vai 3 akmentiņus.
-Ja pēc akmentiņu paņemšanas uz galda ir palicis pāra akmentiņu
-skaits, tad pretinieka punktiem tiek pieskaitīti 2 punkti, bet ja nepāra skaits, tad spēlētāja punktu skaitam tiek pieskaitīti 2 punkti.
-Spēle beidzas, kad uz galda nepaliek neviens akmentiņš.
-Spēlētāju punktu skaitam tiek pieskaitīts spēlētājam esošo akmentiņu skaits.
-Ja spēlētāju punktu skaits ir vienāds, tad rezultāts ir neizšķirts.
-Pretējā gadījumā uzvar spēlētājs, kam ir vairāk punktu.
 
 ## Darba uzdevumi:
 
