@@ -274,7 +274,7 @@ class Screen(QWidget):
             )
 
     def take_two_stones(self) -> None:
-        logging.info("Player takes 2 stones")
+        logging.debug("Player takes 2 stones")
 
         if self.game.can_take(2):
             self.game.take_two_stones()
@@ -291,7 +291,7 @@ class Screen(QWidget):
         )
 
     def take_three_stones(self) -> None:
-        logging.info("Player takes 3 stones")
+        logging.debug("Player takes 3 stones")
 
         if self.game.can_take(3):
             self.game.take_three_stones()

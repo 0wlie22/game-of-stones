@@ -69,7 +69,7 @@ class Game:
         stones_taken = (
             self.current_state.parent.stones_left - self.current_state.stones_left
         )
-        logging.info("Computer takes %d stones", stones_taken)
+        logging.debug("Computer takes %d stones", stones_taken)
 
         end_time = time.time()
 
