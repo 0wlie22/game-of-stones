@@ -1,5 +1,6 @@
 # pyright: basic
 
+import argparse
 import logging
 
 from PySide6 import QtCore
@@ -15,9 +16,9 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from alpha_beta import AlphaBeta
 from game import Game
 from minimax import Minimax
-from alpha_beta import AlphaBeta
 from settings import (
     ALGORITHM_ALPHA_BETA,
     ALGORITHM_MINIMAX,
@@ -35,23 +36,37 @@ from settings import (
 
 
 class Screen(QWidget):
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--log", type=str, default="INFO")
+    args = parser.parse_args()
+    log_level = getattr(logging, args.log.upper())
     logging.basicConfig(
         format="%(asctime)s: %(levelname)s - %(message)s",
-        level=logging.INFO,
+        level=log_level,
         datefmt="%Y-%m-%d %H:%M:%S",
     )
+    logging.info("Logging level set to %s", args.log)
 
     BLOCK_WIDTH = SETTINGS_SCREEN_SIZE[0] // 10
     BLOCK_HEIGHT = SETTINGS_SCREEN_SIZE[1] // 12
+    LOG_FILE_NAME = "game_log.md"
 
     def __init__(self) -> None:
         super().__init__()
+        self.add_header_to_log_file()
         self.init_ui()
 
     def init_ui(self) -> None:
         logging.info("Initializing UI")
+        self.game_number = 1
         self.setWindowTitle("Game of Stones")
         self.start_screen()
+
+    def add_header_to_log_file(self) -> None:
+        with open(self.LOG_FILE_NAME, "w") as log_file:
+            log_file.write(
+                "| Nr. | Stones | Algorithm | First Player | Time per move | Nodes visited | Score | Winner| Tree generation time | Tree estimation time|\n | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n"
+            )
 
     def start_screen(self) -> None:
         logging.info("Start screen")
@@ -149,6 +164,7 @@ class Screen(QWidget):
 
     def start_game(self) -> None:
         logging.info("Starting game")
+        logging.debug("Game nr. %d", self.game_number)
 
         if self.algorithm == ALGORITHM_MINIMAX:
             logging.info("Using Minimax algorithm")
@@ -159,8 +175,6 @@ class Screen(QWidget):
         else:
             # Should never reach here
             raise ValueError("Invalid algorithm")
-        
-    
 
         # Create a new game and enter the game screen
         self.game = Game(
@@ -253,9 +267,11 @@ class Screen(QWidget):
         self.layout.addWidget(self.take_three_button, 5, 5, 1, 3)
 
         # Make the first move
-        if self.game.current_state.player_turn == COMPUTER_PLAYER:
+        if self.game.current_state.player_turn == "computer":
             self.game.make_computer_move()
-            self.update_score()
+            self.update_score(
+                (0, self.game.starting_stones - self.game.current_state.stones_left)
+            )
 
     def take_two_stones(self) -> None:
         logging.info("Player takes 2 stones")
@@ -297,12 +313,15 @@ class Screen(QWidget):
         self.take_three_button.setDisabled(not self.game.can_take(3))
 
         # Update the labels
-        self.player_stones_label.setText(
-            f"Stones: {self.game.current_state.player_stones} (+ {stones_taken[0]})"
-        )
-        self.computer_stones_label.setText(
-            f"Stones: {self.game.current_state.computer_stones} (+ {stones_taken[1]})"
-        )
+        if stones_taken[0] != 0:
+            self.player_stones_label.setText(
+                f"Stones: {self.game.current_state.player_stones} (+ {stones_taken[0]})"
+            )
+        if stones_taken[1] != 0:
+            self.computer_stones_label.setText(
+                f"Stones: {self.game.current_state.computer_stones} (+ {stones_taken[1]})"
+            )
+
         self.stone_count_label.setText(
             f"Stones left:\n{self.game.current_state.stones_left}"
         )
@@ -324,52 +343,54 @@ class Screen(QWidget):
         logging.info("Game over")
 
         # Final score calculations
-        player_final_score = (
+        self.player_final_score = (
             self.game.current_state.player_points
             + self.game.current_state.player_stones
         )
-        computer_final_score = (
+        self.computer_final_score = (
             self.game.current_state.computer_points
             + self.game.current_state.computer_stones
         )
 
-        winner = (
+        self.winner = (
             HUMAN_PLAYER
-            if player_final_score > computer_final_score
+            if self.player_final_score > self.computer_final_score
             else COMPUTER_PLAYER
         )
         # add draw condition
-        if player_final_score == computer_final_score:
-            winner = "Draw"
-        logging.info("Winner: %s", winner)
+        if self.player_final_score == self.computer_final_score:
+            self.winner = "Draw"
+        logging.info("Winner: %s", self.winner)
 
         self.clear_layout(self.layout)
 
-        self.player_stones_label.setText(f"Score: {player_final_score}")
-        self.computer_stones_label.setText(f"Score: {computer_final_score}")
+        self.player_stones_label.setText(f"Score: {self.player_final_score}")
+        self.computer_stones_label.setText(f"Score: {self.computer_final_score}")
 
-        if winner == HUMAN_PLAYER:
+        if self.winner == HUMAN_PLAYER:
             result_message = "YOU WON!"
-        elif winner == COMPUTER_PLAYER:
+        elif self.winner == COMPUTER_PLAYER:
             result_message = "GAME OVER!"
         else:
             result_message = "DRAW!"
 
-        logging.info(f"Player: {player_final_score}, Computer: {computer_final_score}")
+        logging.info(
+            f"Player: {self.player_final_score}, Computer: {self.computer_final_score}"
+        )
 
         result_message_label = QLabel(result_message, alignment=QtCore.Qt.AlignCenter)
         result_message_label.setFont(QFont(FONT, FONT_SIZE_TITLE))
 
         # Player overall score
         self.player_overall_score_label = QLabel(
-            f"Player: {player_final_score}", alignment=QtCore.Qt.AlignCenter
+            f"Player: {self.player_final_score}", alignment=QtCore.Qt.AlignCenter
         )
         self.player_overall_score_label.setFont(QFont(FONT, SUBFONT_SIZE))
         self.player_overall_score_label.setStyleSheet("color: lightgrey")
 
         # Computer overall score
         self.computer_overall_score_label = QLabel(
-            f"Computer: {computer_final_score}", alignment=QtCore.Qt.AlignCenter
+            f"Computer: {self.computer_final_score}", alignment=QtCore.Qt.AlignCenter
         )
         self.computer_overall_score_label.setFont(QFont(FONT, SUBFONT_SIZE))
         self.computer_overall_score_label.setStyleSheet("color: lightgrey")
@@ -385,7 +406,19 @@ class Screen(QWidget):
         self.layout.addWidget(self.player_overall_score_label, 1, 0, 1, 3)
         self.layout.addWidget(self.computer_overall_score_label, 1, 5, 1, 3)
 
+        logging.debug(
+            "Average time spent per move: %f",
+            self.game.time_spent_per_move / self.game.computer_nodes_visited,
+        )
+        logging.debug("Computer nodes visited: %d", self.game.computer_nodes_visited)
+        if logging.getLevelName(logging.getLogger().getEffectiveLevel()) == "DEBUG":
+            with open(self.LOG_FILE_NAME, "a") as log_file:
+                log_file.write(
+                    f"| {self.game_number} | {self.game.starting_stones} | {self.algorithm} | {self.first_player} | {(self.game.time_spent_per_move / self.game.computer_nodes_visited):.3e} | {self.game.computer_nodes_visited} | {self.player_final_score}:{self.computer_final_score} | {self.winner} | {self.game.generation_time:.3f} | {self.game.estimation_time:.3f}|\n"
+                )
+
     def restart_game(self) -> None:
         logging.info("Restarting game")
         self.game = None
+        self.game_number += 1
         self.settings_screen()
