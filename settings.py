@@ -15,5 +15,5 @@ ALGORITHM_MINIMAX = "Minimax"
 ALGORITHM_ALPHA_BETA = "Alpha-Beta"
 
 # Players
-HUMAN_PLAYER = "player"
-COMPUTER_PLAYER = "computer"
+HUMAN_PLAYER = "Player"
+COMPUTER_PLAYER = "Computer"

@@ -1,10 +1,6 @@
-import pickle
 from collections.abc import Generator
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Literal, Self
-
-from settings import COMPUTER_PLAYER, HUMAN_PLAYER
 
 
 @dataclass(slots=True)
@@ -28,7 +24,7 @@ class GameState:
             add_to_computer, add_to_player, stones_left = self.points_to_add(
                 stones, self.player_turn
             )
-            if self.player_turn == COMPUTER_PLAYER:
+            if self.player_turn == "computer":
                 self.children.append(
                     GameState(
                         stones_left,
@@ -39,7 +35,7 @@ class GameState:
                         self.player_stones,
                     )
                 )
-            elif self.player_turn == HUMAN_PLAYER:
+            elif self.player_turn == "player":
                 self.children.append(
                     GameState(
                         stones_left,
@@ -69,12 +65,12 @@ class GameState:
         """
         stones_left = self.stones_left - stones
         if stones_left % 2 == 0:
-            if player_turn == COMPUTER_PLAYER:
+            if player_turn == "computer":
                 return 0, 2, stones_left
             else:
                 return 2, 0, stones_left
         else:
-            if player_turn == COMPUTER_PLAYER:
+            if player_turn == "computer":
                 return 2, 0, stones_left
             else:
                 return 0, 2, stones_left
@@ -116,30 +112,3 @@ class GameState:
         if value not in (-1, 0, 1):
             raise ValueError("Estimation value must be either -1, 0 or 1.")
         self._estimation_value = value
-
-    @classmethod
-    def load_dump(
-        cls,
-        starting_stones: int,
-        starting_player: Literal[COMPUTER_PLAYER, HUMAN_PLAYER],
-    ) -> "GameState":
-        dump_dir = Path("dumps")
-        if not dump_dir.exists():
-            dump_dir.mkdir()
-        dump_path = dump_dir / f"{starting_stones}-{starting_player}-tree.dump"
-        with dump_path.open("rb") as fh:
-            return pickle.load(fh)  # noqa: S301
-
-    def save_dump(self) -> None:
-        Path("dumps").mkdir(exist_ok=True)
-        dump_path = Path("dumps") / f"{self.stones_left}-{self.player_turn}-tree.dump"
-        with dump_path.open("wb") as fh:
-            pickle.dump(self, fh)
-
-    def __repr__(self) -> str:
-        return (
-            f"GameState(stones_left={self.stones_left}, player_turn={self.player_turn}, "
-            + f"computer_points={self.computer_points}, player_points={self.player_points}, "
-            + f"computer_stones={self.computer_stones}, player_stones={self.player_stones}, "
-            + f"estimation_value={self.estimation_value})"
-        )
