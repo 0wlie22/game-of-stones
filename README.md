@@ -1,5 +1,15 @@
 # Team 40 - Game of Stones
 
+## Usage
+
+To run the application `python 3.12` is required
+
+```bash
+pip install -r requirements.txt
+
+python main.py
+```
+
 ## Development
 
 ### Prerequisites:
@@ -24,14 +34,3 @@ python main.py
 # or run in DEBUG mode, to see the hidden logs
 python --log=DEBUG
 ```
-
-
-## Darba uzdevumi:
-
-- spēles koka vai tā daļas ģenerēšana
-- heiristiskā novērtējuma funkcijas izstrāde
-- Minimaksa algorima izstrāde
-- Alfa-beta algoritma izstrāde
-- 10 eksperimenti ar katru no algoritmiem, fiksējot datora un cilvēka uzvaru skaitu, datora apmeklēto virsotņu skaitu, datora vidējo laiku gājiena izpildei
-- GUI izveide
-- atskaites noformēšana
